@@ -11,7 +11,7 @@
         </thead>
         <tbody>
             {% if question_list %}
-            {% for question in question_list %}
+            {% for question in question_list.items %}
             <tr>
                 <td>{{ loop.index }}</td>
                 <td>
@@ -27,6 +27,44 @@
             {% endif %}
         </tbody>
     </table>
+    <ul class="pagination justify-content-center">
+        {% if question_list.has_prev %}
+        <li class="page-item">
+            <a href="?page={{ question_list.prev_num }}" class="page-link">prev</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <a href="#" tabindex="-1" aria-disabled="true" class="page-link">prev</a>
+        </li>
+        {% endif %}
+        {% for page_num in question_list.iter_pages() %}
+        {% if page_num %}
+        {% if page_num != question_list.page %}
+        <li class="page-item">
+            <a href="?page={{ page_num }}" class="page-link">{{ page_num }}</a>
+        </li>
+        {% else %}
+        <li class="page-item active" aria-current="page">
+            <a href="#" class="page-link">{{ page_num }}</a>
+        </li>
+        {% endif %}
+        {% else %}
+        <li class="disabled">
+            <a href="#" class="page-link">...</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+
+        {% if question_list.has_next %}
+        <li class="page-item">
+            <a href="?page={{ question_list.next_num }}" class="page-link">next</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <a href="#" tabindex="-1" aria-disabled="true" class="page-link">next</a>
+        </li>
+        {% endif %}
+    </ul>
     <a href="{{ url_for('question.create') }}" class="btn btn-primary">Enlist a question</a>
 </div>
 {% endblock %}
