@@ -34,7 +34,8 @@
         </div>
         {% endfor %}
         <div class="form-group">
-            <textarea name="content" id="content" rows="10" class="form-control"></textarea>
+            <textarea {% if not g.user %}disabled{% endif %} name="content" id="content" rows="10"
+                class="form-control"></textarea>
         </div>
         <input type="submit" value="Submit" class="btn btn-primary">
     </form>
