@@ -1,6 +1,6 @@
 pybo/.vscode/
 venv/
-__pycache__/
 migrations/
 .vscode/
-**/__pycache__/
+*/**/__pycache__/
+*.db
