@@ -1,7 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container my-3">
-    <div class="row justify-content-end my-3">
+    <div class="row justify-content-between my-3">
+        <div class="col-2">
+            <select class="form-control so">
+                <option value="recent" {% if so=='recent' %}selected{% endif %}>Recent</option>
+                <option value="recommend" {% if so=='recommend' %}selected{% endif %}>Recommend</option>
+                <option value="popular" {% if so=='popular' %}selected{% endif %}>Popular</option>
+            </select>
+        </div>
         <div class="col-4 input-group">
             <input type="text" class="form-control kw" value="{{ kw or '' }}">
             <div class="input-group-append">
@@ -89,6 +96,7 @@
 <form action="{{ url_for('question._list') }}" method="GET" id="searchForm">
     <input type="hidden" name="kw" id="kw" value="{{ kw or '' }}">
     <input type="hidden" name="page" id="page" value="{{ page }}">
+    <input type="hidden" name="so" id="so" value="{{ so }}">
 </form>
 {% endblock %}
 
@@ -103,6 +111,11 @@
             $("#kw").val($(".kw").val());
             $("#page").val(1);
             $("#searchForm").submit()
+        })
+        $(".so").on('change', function () {
+            $("#so").val($(this).val());
+            $("#page").val(1);
+            $("#searchForm").submit();
         })
     })
 </script>

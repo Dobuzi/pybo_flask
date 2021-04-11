@@ -1,11 +1,12 @@
 from datetime import datetime
+from sqlalchemy import func
 
 from flask import Blueprint, render_template, request, url_for, g, flash
 from werkzeug.utils import redirect
 
 from .. import db
 
-from ..models import Question, Answer, User
+from ..models import Question, Answer, User, question_voter
 from ..forms import QuestionForm, AnswerForm
 from ..views.auth_views import login_required
 
@@ -15,11 +16,25 @@ bp = Blueprint('question', __name__, url_prefix='/question')
 def _list():
     page = request.args.get('page', type=int, default=1)
     kw = request.args.get('kw', type=str, default='')
+    so = request.args.get('so', type=str, default='recent')
 
-    question_list = Question.query.order_by(Question.create_date.desc())
+    if so == 'recommend':
+        sub_query = db.session.query(question_voter.c.question_id, func.count('*').label('num_voter')) \
+            .group_by(question_voter.c.question_id).subquery()
+        question_list = Question.query.outerjoin(sub_query, Question.id == sub_query.c.question_id) \
+            .order_by(sub_query.c.num_voter.desc(), Question.create_date.desc())
+    elif so == 'popular':
+        sub_query = db.session.query(Answer.question_id, func.count('*').label('num_answer')) \
+            .group_by(Answer.question_id).subquery()
+        question_list = Question.query.outerjoin(sub_query, Question.id == sub_query.c.question_id) \
+            .order_by(sub_query.c.num_answer.desc(), Question.create_date.desc())
+    else:
+        question_list = Question.query.order_by(Question.create_date.desc())
+
     if kw:
         search = '%%{}%%'.format(kw)
-        sub_query = db.session.query(Answer.question_id, Answer.content, User.username).join(User, Answer.user_id == User.id).subquery()
+        sub_query = db.session.query(Answer.question_id, Answer.content, User.username) \
+            .join(User, Answer.user_id == User.id).subquery()
         question_list = question_list.join(User).outerjoin(sub_query, sub_query.c.question_id == Question.id) \
             .filter(Question.subject.ilike(search) |
                     Question.content.ilike(search) |
@@ -27,7 +42,7 @@ def _list():
                     sub_query.c.content.ilike(search) |
                     sub_query.c.username.ilike(search)).distinct()
     question_list = question_list.paginate(page, per_page=10)
-    return render_template('question/question_list.html', question_list=question_list, page=page, kw=kw)
+    return render_template('question/question_list.html', question_list=question_list, page=page, kw=kw, so=so)
 
 @bp.route('/detail/<int:question_id>/')
 def detail(question_id):
