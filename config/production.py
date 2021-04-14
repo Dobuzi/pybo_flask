@@ -27,3 +27,10 @@ dictConfig({
         'handlers': ['file']
     }
 })
+
+SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://{user}:{pw}@{url}/{db}'.format(
+    user='dbmasteruser',
+    pw='z_O]$=r-_C2t|ORq~=5U>*G0.fK.DZCT',
+    url='ls-d7e3937f33ea55332a5cfd8c411dd80612ef153c.cnbcozhreiqu.ap-northeast-2.rds.amazonaws.com',
+    db='flask_pybo'
+)
